@@ -11,6 +11,76 @@
 # Engagement: MUST set eventDateColumn to an immutable DateTime (e.g. CreatedDate)
 #             DO NOT use LastModifiedDate — breaks time-series partitioning
 datastreams:
+  # ── Example: CSV file upload (Engagement / transaction data) ──────────────
+  # Use UploadedFiles connector for CSV files.
+  # category: "Engagement" requires eventDateColumn pointing to an immutable DateTime field.
+  # refreshMode: "TOTAL_REPLACE" replaces all rows on every re-upload.
+  # Field names map 1-to-1 from the CSV header row.
+  transaction_stream:
+    label: "Transaction Data Stream"
+    name: "Transaction_Data"
+    connectorInfo:
+      connectorType: "UploadedFiles"
+      connectorDetails:
+        name: "UploadedFiles"
+    dataLakeObjectInfo:
+      category: "Engagement"
+      eventDateColumn: "date_time_stamp"   # immutable DateTime → used for time-series partitioning
+      dataLakeFieldInfoRepresentation:
+        - name: "unique_transaction_id"
+          dataType: "Text"
+          label: "Unique Transaction ID"
+          isPrimaryKey: true
+        - name: "email_address"
+          dataType: "Text"
+          label: "Email Address"
+          isPrimaryKey: false
+        - name: "date_time_stamp"
+          dataType: "DateTime"
+          label: "Transaction Date"
+          isPrimaryKey: false
+        - name: "product_id"
+          dataType: "Text"
+          label: "Product ID"
+          isPrimaryKey: false
+        - name: "product_name"
+          dataType: "Text"
+          label: "Product Name"
+          isPrimaryKey: false
+        - name: "vendor_id"
+          dataType: "Text"
+          label: "Vendor ID"
+          isPrimaryKey: false
+        - name: "vendor_name"
+          dataType: "Text"
+          label: "Vendor Name"
+          isPrimaryKey: false
+        - name: "vendor_state"
+          dataType: "Text"
+          label: "Vendor State"
+          isPrimaryKey: false
+        - name: "vendor_city"
+          dataType: "Text"
+          label: "Vendor City"
+          isPrimaryKey: false
+        - name: "purchase_price"
+          dataType: "Number"
+          label: "Purchase Price"
+          isPrimaryKey: false
+    advancedAttributes:
+      fileType: "CSV"
+      delimiter: ","
+      fileName: "transactions.csv"
+    refreshConfig:
+      hasHeaders: true
+      refreshMode: "TOTAL_REPLACE"
+      isAccelerationEnabled: false
+      shouldFetchImmediately: false
+      shouldTreatMissingFilesAsFailures: false
+      frequency:
+        frequencyType: "BATCH"
+
+  # ── Example: Salesforce CRM connector (Account object) ───────────────────
   account_stream:
     label: "Account Data Stream"
     connectorInfo:
@@ -163,6 +233,17 @@ activations:
           type: "MODEL"
     shouldExcludeDeletes: false
     shouldExcludeUpdates: false
+
+# ─── CSV Ingests ──────────────────────────────────────────────────────────────
+# Uploads a local CSV file into the DLO created by the matching datastream.
+# objectApiName: the DLO developer name (from the datastream response or d360_dlo_list)
+# csvFilePath  : path to the CSV file on your local machine
+# operation    : "upsert" (default) | "insert" | "delete"
+csv_ingests:
+  transaction_upload:
+    objectApiName: "Transaction_Data_YOUR_ORG_ID__dll"   # replace with real DLO name
+    csvFilePath: "data/transactions.csv"                  # relative or absolute path
+    operation: "upsert"
 
 # ─── Connectors ───────────────────────────────────────────────────────────────
 connectors:

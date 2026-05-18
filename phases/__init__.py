@@ -14,6 +14,7 @@ from phases.segment import SegmentPhase
 from phases.target import TargetPhase
 from phases.activation import ActivationPhase
 from phases.dcr import DCRPhase
+from phases.csv_ingest import CSVIngestPhase
 
 
 def all_phases() -> List[Phase]:
@@ -27,4 +28,5 @@ def all_phases() -> List[Phase]:
         TargetPhase(),
         ActivationPhase(),
         DCRPhase(),
+        CSVIngestPhase(),    # upload CSV data into the DLO via Ingest API
     ]

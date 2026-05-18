@@ -75,20 +75,27 @@ class TestPhaseRegistry:
     def test_all_phases_importable(self):
         from phases import all_phases
         phases = all_phases()
-        assert len(phases) == 9
+        assert len(phases) == 10
 
     def test_phase_order(self):
         from phases import all_phases
         names = [p.name for p in all_phases()]
         assert names == [
             "auth", "preflight", "datastream", "dmo",
-            "dmo_mapping", "segment", "target", "activation", "dcr_install"
+            "dmo_mapping", "segment", "target", "activation", "dcr_install",
+            "csv_ingest",
         ]
 
     def test_dmo_mapping_uses_correct_endpoint(self):
         src = _source("dmo_mapping.py")
         assert "/ssot/data-model-object-mappings" in src
         assert "v66.0" in src
+
+    def test_csv_ingest_uses_ingest_api(self):
+        src = _source("csv_ingest.py")
+        # Uses the Ingest API, not SSOT API — no v66.0 in path
+        assert "/api/v1/ingest/jobs" in src
+        assert "csv_ingest" in src
 
     def test_all_phases_have_name_and_description(self):
         from phases import all_phases

@@ -353,9 +353,9 @@ def provision(state_dir, dry_run, force_phase, yes, verbose):
     Features:
       - Pick multiple orgs (shows real usernames + URLs, not aliases)
       - Add a new org via browser login
-      - Runs 8 phases in order:
-          auth → preflight → datastream → dmo →
-          segment → target → activation → dcr_install
+      - Runs 10 phases in order:
+          auth → preflight → datastream → dmo → dmo_mapping →
+          segment → target → activation → dcr_install → csv_ingest
       - Automatically resumes from failed phase on re-run
       - Dry-run mode to preview without making changes
 

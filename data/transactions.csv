@@ -1,0 +1,6 @@
+unique_transaction_id,email_address,date_time_stamp,product_id,product_name,vendor_id,vendor_name,vendor_state,vendor_city,purchase_price
+TXN-001,alice@example.com,2024-01-15T10:30:00Z,PROD-101,Wireless Headphones,VEND-01,TechCorp,CA,San Francisco,149.99
+TXN-002,bob@example.com,2024-01-15T11:45:00Z,PROD-102,USB-C Hub,VEND-02,GadgetWorld,NY,New York,49.99
+TXN-003,carol@example.com,2024-01-16T09:00:00Z,PROD-103,Mechanical Keyboard,VEND-01,TechCorp,CA,San Francisco,199.99
+TXN-004,david@example.com,2024-01-16T14:20:00Z,PROD-101,Wireless Headphones,VEND-03,ElectroHub,TX,Austin,149.99
+TXN-005,eve@example.com,2024-01-17T16:00:00Z,PROD-104,Monitor Stand,VEND-02,GadgetWorld,NY,New York,79.99

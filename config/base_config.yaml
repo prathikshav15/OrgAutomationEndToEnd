@@ -85,6 +85,15 @@ activations:
     shouldExcludeDeletes: false
     shouldExcludeUpdates: false
 
+# ─── CSV Ingests ──────────────────────────────────────────────────────────────
+# Bulk-uploads a local CSV file into an existing Data Cloud DLO via the
+# Ingest API (POST /api/v1/ingest/jobs).
+# Run AFTER: datastream (which creates the target DLO)
+# operation: "upsert" | "insert" | "delete"
+csv_ingests:
+  base:
+    operation: "upsert"
+
 # ─── Connectors ───────────────────────────────────────────────────────────────
 connectors:
   base:
