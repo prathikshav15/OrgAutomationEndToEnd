@@ -18,13 +18,7 @@ datastreams:
     refreshConfig:
       frequency:
         frequencyType: "BATCH"
-        hours: []
-        refreshDayOfMonth: []
       refreshMode: "UPSERT"
-      hasHeaders: false
-      isAccelerationEnabled: false
-      shouldFetchImmediately: false
-      shouldTreatMissingFilesAsFailures: false
 
 # ─── DMOs ─────────────────────────────────────────────────────────────────────
 # POST /services/data/v66.0/ssot/data-model-objects
