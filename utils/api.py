@@ -19,7 +19,7 @@ class CDPAPI:
         Generic method to create any type of entity
         """
         entity_config = self.config_loader.get_entity_config(entity_type, entity_name)
-        url = f"{self.token_info['instance_url']}/services/data/v61.0/ssot/{endpoint}"
+        url = f"{self.token_info['instance_url']}/services/data/v66.0/ssot/{endpoint}"
         
         print(f"\nRequest URL: {url}")
         print(f"Request payload:")

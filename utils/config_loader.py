@@ -9,9 +9,12 @@ class ConfigLoader:
         self.override_config = self._load_yaml(override_config_path)
         
     def _load_yaml(self, path: str) -> Dict:
-        """Load YAML file"""
-        with open(path, 'r') as f:
-            return yaml.safe_load(f)
+        """Load YAML file — returns empty dict if file doesn't exist."""
+        try:
+            with open(path, 'r') as f:
+                return yaml.safe_load(f) or {}
+        except FileNotFoundError:
+            return {}
     
     def _deep_merge(self, base: Dict, override: Dict) -> Dict:
         """Recursively merge two dictionaries, with override taking precedence"""

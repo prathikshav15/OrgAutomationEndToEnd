@@ -23,9 +23,9 @@ class PreflightPhase(Phase):
         # Try several Data Cloud endpoints — if ANY responds, DC is enabled.
         # We use real DC endpoints that return data when DC is enabled.
         candidates = [
-            "/services/data/v61.0/ssot/data-model-objects",
-            "/services/data/v61.0/ssot/segments",
-            "/services/data/v61.0/ssot/data-streams",
+            "/services/data/v66.0/ssot/data-model-objects",
+            "/services/data/v66.0/ssot/segments",
+            "/services/data/v66.0/ssot/data-streams",
         ]
 
         last_error = None

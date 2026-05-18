@@ -1,50 +1,128 @@
 # override_config_example.yaml
 # Copy this to override_config.yaml and fill in your values.
 # override_config.yaml is git-ignored — never commit real credentials.
+#
+# All endpoints and payloads aligned to d360-mcp-server v66.0 (Data 360 Connect REST API).
+# Base URL pattern: {instance_url}/services/data/v66.0/ssot/...
 
 # ─── Datastreams ──────────────────────────────────────────────────────────────
+# POST /services/data/v66.0/ssot/data-streams
 datastreams:
   crm_contacts:
-    name: "CRM_Contacts_Stream"
-    type: "CRM"
+    label: "CRM Contacts Stream"
+    dataAccessMode: "INGEST"
     dataSpaceName: "default"
+    connectorInfo:
+      connectorType: "SalesforceDotCom"
+      connectorDetails:
+        sourceObject: "Contact"
+        name: "SalesforceDotCom_00D000000000000"  # replace with your org ID suffix
+    dataLakeObjectInfo:
+      category: "Profile"
+      dataLakeFieldInfoRepresentation:
+        - name: "Id"
+          dataType: "Text"
+          isPrimaryKey: true
+        - name: "FirstName"
+          dataType: "Text"
+        - name: "LastName"
+          dataType: "Text"
+        - name: "Email"
+          dataType: "Text"
+    refreshConfig:
+      frequency:
+        frequencyType: "BATCH"
+      refreshMode: "UPSERT"
 
 # ─── DMOs ─────────────────────────────────────────────────────────────────────
+# POST /services/data/v66.0/ssot/data-model-objects
 dmos:
   contact_dmo:
-    developerName: "Contact_Unified"
+    name: "ContactUnified__dlm"
     label: "Contact Unified"
-    category: "Profile"
+    objectType: "Custom"
+    objectCategory: "Profile"
     dataSpaceName: "default"
+    fields:
+      - name: "Id__c"
+        isPrimaryKey: true
+        dataType: "Text"
+      - name: "FirstName__c"
+        dataType: "Text"
+      - name: "LastName__c"
+        dataType: "Text"
+      - name: "Email__c"
+        dataType: "Text"
 
 # ─── Segments ─────────────────────────────────────────────────────────────────
+# POST /services/data/v66.0/ssot/segments
 segments:
   segment1:
-    developerName: "sample_test_segment"
-    description: "sample segment"
+    displayName: "Sample Test Segment"
+    segmentOnApiName: "UnifiedIndividual__dlm"
+    segmentType: "Ui"
+    publishSchedule: "TwentyFour"
+    publishScheduleStartDateTime: "2026-01-01T00:00:00.000Z"
+    description: "Sample segment"
+    dataSpaceName: "default"
+    # Optional: add SQL filter via includeDbt
+    # includeDbt:
+    #   models:
+    #     models:
+    #       - name: "sample_filter"
+    #         sql: "SELECT DISTINCT ind.ssot__Id__c as individual_id FROM UnifiedIndividual__dlm as ind"
+
   segment2:
-    developerName: "sample_test_segment_2"
-    description: "sample segment 2"
+    displayName: "Sample Test Segment 2"
+    segmentOnApiName: "UnifiedIndividual__dlm"
+    segmentType: "Ui"
+    publishSchedule: "TwentyFour"
+    publishScheduleStartDateTime: "2026-01-01T00:00:00.000Z"
+    description: "Sample segment 2"
+    dataSpaceName: "default"
 
 # ─── Targets ──────────────────────────────────────────────────────────────────
+# POST /services/data/v66.0/ssot/activation-targets
 targets:
   target1:
     name: "test_target_1"
-    description: "test target"
+    description: "Test S3 activation target"
+    platformType: "AmazonS3"
+    isCappingEnabled: false
+    dataSpaceName: "default"
     connector:
       bucketName: "YOUR_S3_BUCKET_NAME"
+      folderName: "cdp-output/"
       accessKey: "YOUR_AWS_ACCESS_KEY"
       secretKey: "YOUR_AWS_SECRET_KEY"
 
 # ─── Activations ──────────────────────────────────────────────────────────────
+# POST /services/data/v66.0/ssot/activations
 activations:
   activation1:
     name: "Activation_1"
     activationTargetName: "test_target_1"
-    segmentApiName: "test"
-    refreshType: "FULL_REFRESH"
+    segmentApiName: "sample_test_segment"
+    refreshType: "FULL"          # "FULL" or "INCREMENTAL" (not FULL_REFRESH)
+    dataSpaceName: "default"
+    activationTargetSubjectConfig:
+      developerName: "ssot__Individual__dlm"
+    attributesConfig:
+      attributes:
+        - dataSourceType: "Text"
+          entityName: "ssot__Individual__dlm"
+          label: "Individual Id"
+          name: "ssot__Id__c"
+          queryPathConfig:
+            configs: []
+          referenceAttributeName: "Id"
+          source: "DIRECT"
+          type: "MODEL"
+    shouldExcludeDeletes: false
+    shouldExcludeUpdates: false
 
 # ─── Connectors ───────────────────────────────────────────────────────────────
+# POST /services/data/v66.0/ssot/connections
 connectors:
   SFTPConnector:
     name: SFTP_Connector_1

@@ -35,7 +35,7 @@ class DMOPhase(Phase):
                 print(f"    Payload: {json.dumps(entity_config, indent=6)}")
                 continue
 
-            url = f"{token_info['instance_url']}/services/data/v61.0/ssot/dataModelObjects"
+            url = f"{token_info['instance_url']}/services/data/v66.0/ssot/data-model-objects"
             try:
                 resp = requests.post(url, headers=headers, json=entity_config, timeout=30)
             except requests.exceptions.ConnectionError as e:

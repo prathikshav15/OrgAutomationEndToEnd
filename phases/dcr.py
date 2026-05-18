@@ -42,7 +42,7 @@ class DCRPhase(Phase):
         # Step 1: Submit install request via Tooling API
         install_url = (
             f"{token_info['instance_url']}"
-            f"/services/data/v61.0/tooling/sobjects/PackageInstallRequest"
+            f"/services/data/v66.0/tooling/sobjects/PackageInstallRequest"
         )
         payload = {
             "SubscriberPackageVersionId": package_id,
@@ -67,7 +67,7 @@ class DCRPhase(Phase):
         # Step 2: Poll until complete
         poll_url = (
             f"{token_info['instance_url']}"
-            f"/services/data/v61.0/tooling/sobjects/PackageInstallRequest/{request_id}"
+            f"/services/data/v66.0/tooling/sobjects/PackageInstallRequest/{request_id}"
         )
         elapsed = 0
         while elapsed < INSTALL_TIMEOUT:

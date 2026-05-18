@@ -65,11 +65,7 @@ class Runner:
                 console.print(f"  [dim]✓ {phase.name} — skipped (already done)[/dim]")
                 continue
 
-            if dry_run:
-                console.print(f"  [yellow]~ {phase.name} — dry run (would execute)[/yellow]")
-                continue
-
-            # Run with retries
+            # Run with retries (dry_run is passed through to phase.run())
             success = self._run_phase(phase, org, token_info, record, dry_run)
             self.store.save()
 
@@ -85,16 +81,18 @@ class Runner:
 
     def _run_phase(self, phase: Phase, org: OrgState, token_info: dict, record, dry_run: bool) -> bool:
         for attempt in range(1, MAX_RETRIES + 1):
-            record.status = PhaseStatus.IN_PROGRESS
-            record.attempt = attempt
-            record.started_at = datetime.utcnow().isoformat()
-            self.store.save()
+            if not dry_run:
+                record.status = PhaseStatus.IN_PROGRESS
+                record.attempt = attempt
+                record.started_at = datetime.utcnow().isoformat()
+                self.store.save()
 
             try:
                 phase.run(token_info, org, dry_run=dry_run)
-                record.status = PhaseStatus.DONE
-                record.last_error = None
-                record.finished_at = datetime.utcnow().isoformat()
+                if not dry_run:
+                    record.status = PhaseStatus.DONE
+                    record.last_error = None
+                    record.finished_at = datetime.utcnow().isoformat()
                 console.print(f"  [green]✓ {phase.name}[/green]")
                 return True
 

@@ -15,7 +15,7 @@ class AuthPhase(Phase):
         if dry_run:
             return
 
-        url = f"{token_info['instance_url']}/services/data/v61.0/"
+        url = f"{token_info['instance_url']}/services/data/v66.0/"
         headers = {"Authorization": f"Bearer {token_info['access_token']}"}
 
         try:

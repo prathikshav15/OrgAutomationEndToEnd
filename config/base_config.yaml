@@ -3,30 +3,45 @@
 # Override specific fields in config/override_config.yaml
 
 defaults:
-  api_version: "v61.0"
+  api_version: "v66.0"
   dataspace_name: "default"
 
 # ─── Datastreams ──────────────────────────────────────────────────────────────
+# Correct fields per d360-mcp-server (v66.0):
+#   dataAccessMode: "INGEST"
+#   connectorInfo.connectorType: e.g. "SalesforceDotCom" | "Snowflake" | "S3"
+#   refreshConfig.refreshMode: "UPSERT" | "TOTAL_REPLACE"
+#   refreshConfig.frequency.frequencyType: "BATCH" | "STREAMING"
 datastreams:
   base:
     dataSpaceName: "default"
-    type: "CRM"
-    status: "Running"
+    dataAccessMode: "INGEST"
+    refreshConfig:
+      frequency:
+        frequencyType: "BATCH"
+      refreshMode: "UPSERT"
 
 # ─── DMOs ─────────────────────────────────────────────────────────────────────
+# Correct fields per d360-mcp-server (v66.0):
+#   objectType: "Custom" | "Standard"
+#   objectCategory: "Profile" | "Engagement" | "Other" | "Calculated"
 dmos:
   base:
     dataSpaceName: "default"
-    category: "Profile"
+    objectType: "Custom"
+    objectCategory: "Profile"
 
 # ─── Segments ─────────────────────────────────────────────────────────────────
+# Correct fields per d360-mcp-server (v66.0):
+#   segmentType: "Ui"  (case-sensitive — was "UI")
+#   publishSchedule: "TwentyFour" | "Weekly" | "None"
+#   segmentOnApiName: the DMO to segment on
 segments:
   base:
-    segmentType: "UI"
-    developerName: "default_segment_name"
+    segmentType: "Ui"
+    segmentOnApiName: "UnifiedIndividual__dlm"
+    publishSchedule: "TwentyFour"
     description: "Default segment"
-    segmentOnApiName: "ssot__Individual__dlm"
-    segmentCreationFlow: "datakit"
 
 # ─── Targets ──────────────────────────────────────────────────────────────────
 targets:
@@ -40,15 +55,17 @@ targets:
     dataSpaceName: "default"
 
 # ─── Activations ──────────────────────────────────────────────────────────────
+# Correct fields per d360-mcp-server (v66.0):
+#   refreshType: "INCREMENTAL" | "FULL"  (not FULL_REFRESH)
 activations:
   base:
-    refreshType: "FULL_REFRESH"
-    dataSpaceName: default
+    refreshType: "FULL"
+    dataSpaceName: "default"
     activationTargetName: "test_target_1"
     name: "Activation_1"
     segmentApiName: "test"
     activationTargetSubjectConfig:
-      developerName: ssot__Individual__dlm
+      developerName: "ssot__Individual__dlm"
     attributesConfig:
       attributes:
         - dataSourceType: "Text"

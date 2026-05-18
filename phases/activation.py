@@ -32,7 +32,7 @@ class ActivationPhase(Phase):
                 print(f"    [dry-run] Would create activation: {name}")
                 continue
 
-            url = f"{token_info['instance_url']}/services/data/v61.0/ssot/activations"
+            url = f"{token_info['instance_url']}/services/data/v66.0/ssot/activations"
             try:
                 resp = requests.post(url, headers=headers, json=entity_config, timeout=30)
             except requests.exceptions.ConnectionError as e:
