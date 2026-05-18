@@ -39,7 +39,7 @@ def _get_connected_orgs() -> List[OrgInfo]:
             ["sf", "org", "list", "--json"],
             capture_output=True,
             text=True,
-            timeout=15,
+            timeout=60,
         )
         data = json.loads(result.stdout)
         orgs = []
@@ -92,7 +92,7 @@ def _login_new_org() -> OrgInfo | None:
         ["sf", "org", "display", "--target-org", alias, "--json"],
         capture_output=True,
         text=True,
-        timeout=15,
+        timeout=60,
     )
     data = json.loads(result2.stdout).get("result", {})
     return OrgInfo(
@@ -163,7 +163,7 @@ def get_token_for_org(org: OrgInfo) -> dict:
         ["sf", "org", "display", "--target-org", org.username, "--json"],
         capture_output=True,
         text=True,
-        timeout=15,
+        timeout=60,
     )
     data = json.loads(result.stdout).get("result", {})
     return {
