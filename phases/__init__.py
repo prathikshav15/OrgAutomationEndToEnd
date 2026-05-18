@@ -9,6 +9,7 @@ from phases.auth import AuthPhase
 from phases.preflight import PreflightPhase
 from phases.datastream import DatastreamPhase
 from phases.dmo import DMOPhase
+from phases.dmo_mapping import DMOMappingPhase
 from phases.segment import SegmentPhase
 from phases.target import TargetPhase
 from phases.activation import ActivationPhase
@@ -21,6 +22,7 @@ def all_phases() -> List[Phase]:
         PreflightPhase(),
         DatastreamPhase(),
         DMOPhase(),
+        DMOMappingPhase(),   # maps DLO → DMO so data flows into the model
         SegmentPhase(),
         TargetPhase(),
         ActivationPhase(),

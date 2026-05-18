@@ -2,84 +2,127 @@
 # Copy this to override_config.yaml and fill in your values.
 # override_config.yaml is git-ignored — never commit real credentials.
 #
-# All endpoints and payloads aligned to d360-mcp-server v66.0 (Data 360 Connect REST API).
-# Base URL pattern: {instance_url}/services/data/v66.0/ssot/...
+# Payloads sourced from d360-mcp-server payload-examples.json (v66.0)
+# Endpoints: {instance_url}/services/data/v66.0/ssot/...
 
 # ─── Datastreams ──────────────────────────────────────────────────────────────
 # POST /services/data/v66.0/ssot/data-streams
+# Profile: no eventDateColumn needed
+# Engagement: MUST set eventDateColumn to an immutable DateTime (e.g. CreatedDate)
+#             DO NOT use LastModifiedDate — breaks time-series partitioning
 datastreams:
-  crm_contacts:
-    label: "CRM Contacts Stream"
-    dataAccessMode: "INGEST"
-    dataSpaceName: "default"
+  account_stream:
+    label: "Account Data Stream"
     connectorInfo:
       connectorType: "SalesforceDotCom"
       connectorDetails:
-        sourceObject: "Contact"
-        name: "SalesforceDotCom_00D000000000000"  # replace with your org ID suffix
+        sourceObject: "Account"
+        name: "SalesforceDotCom_YOUR_ORG_ID"   # e.g. SalesforceDotCom_00DVF000004CYzh2AG
     dataLakeObjectInfo:
       category: "Profile"
       dataLakeFieldInfoRepresentation:
         - name: "Id"
           dataType: "Text"
+          label: "Account ID"
           isPrimaryKey: true
-        - name: "FirstName"
+        - name: "Name"
           dataType: "Text"
-        - name: "LastName"
+          label: "Account Name"
+          isPrimaryKey: false
+        - name: "Industry"
           dataType: "Text"
-        - name: "Email"
+          label: "Industry"
+          isPrimaryKey: false
+        - name: "AnnualRevenue"
+          dataType: "Number"
+          label: "Annual Revenue"
+          isPrimaryKey: false
+        - name: "BillingCountry"
           dataType: "Text"
-    refreshConfig:
-      frequency:
-        frequencyType: "BATCH"
-      refreshMode: "UPSERT"
+          label: "Billing Country"
+          isPrimaryKey: false
+        - name: "CreatedDate"
+          dataType: "DateTime"
+          label: "Created Date"
+          isPrimaryKey: false
+        - name: "LastModifiedDate"
+          dataType: "DateTime"
+          label: "Last Modified Date"
+          isPrimaryKey: false
 
 # ─── DMOs ─────────────────────────────────────────────────────────────────────
 # POST /services/data/v66.0/ssot/data-model-objects
 dmos:
-  contact_dmo:
-    name: "ContactUnified__dlm"
-    label: "Contact Unified"
+  custom_metric_dmo:
+    name: "CustomMetric__dlm"
+    label: "Custom Metrics Object"
     objectType: "Custom"
-    objectCategory: "Profile"
-    dataSpaceName: "default"
+    objectCategory: "Calculated"
     fields:
       - name: "Id__c"
         isPrimaryKey: true
+        isRequired: true
+        label: "ID"
         dataType: "Text"
-      - name: "FirstName__c"
+      - name: "MetricName__c"
+        label: "Metric Name"
         dataType: "Text"
-      - name: "LastName__c"
-        dataType: "Text"
-      - name: "Email__c"
-        dataType: "Text"
+        isRequired: true
+      - name: "MetricValue__c"
+        label: "Metric Value"
+        dataType: "Number"
+        precision: 18
+        scale: 2
+      - name: "CalculationDate__c"
+        label: "Calculation Date"
+        dataType: "DateTime"
+
+# ─── DMO Mappings ─────────────────────────────────────────────────────────────
+# POST /services/data/v66.0/ssot/data-model-object-mappings
+# Run AFTER datastream is created — get the exact DLO name from the datastream response
+# DLO field names always have __c suffix (Id__c, Name__c, etc.)
+# IMPORTANT: dataspace is required — set it in the mapping config
+dmo_mappings:
+  account_to_ssot_account:
+    sourceEntityDeveloperName: "Account_YOUR_ORG_ID__dll"   # from datastream response
+    targetEntityDeveloperName: "ssot__Account__dlm"
+    fieldMapping:
+      - sourceFieldDeveloperName: "Id__c"
+        targetFieldDeveloperName: "ssot__Id__c"
+      - sourceFieldDeveloperName: "Name__c"
+        targetFieldDeveloperName: "ssot__Name__c"
+      - sourceFieldDeveloperName: "Industry__c"
+        targetFieldDeveloperName: "ssot__Industry__c"
+      - sourceFieldDeveloperName: "AnnualRevenue__c"
+        targetFieldDeveloperName: "ssot__AnnualRevenue__c"
+      - sourceFieldDeveloperName: "BillingCountry__c"
+        targetFieldDeveloperName: "ssot__BillingCountry__c"
 
 # ─── Segments ─────────────────────────────────────────────────────────────────
 # POST /services/data/v66.0/ssot/segments
+# segmentCreationFlow: "Datakit" is required
+# Use includeDbt.models.models[].sql for SQL-based filtering
 segments:
-  segment1:
-    displayName: "Sample Test Segment"
+  high_value_customers:
+    displayName: "High Value Customers"
     segmentOnApiName: "UnifiedIndividual__dlm"
     segmentType: "Ui"
+    segmentCreationFlow: "Datakit"
     publishSchedule: "TwentyFour"
-    publishScheduleStartDateTime: "2026-01-01T00:00:00.000Z"
-    description: "Sample segment"
-    dataSpaceName: "default"
-    # Optional: add SQL filter via includeDbt
-    # includeDbt:
-    #   models:
-    #     models:
-    #       - name: "sample_filter"
-    #         sql: "SELECT DISTINCT ind.ssot__Id__c as individual_id FROM UnifiedIndividual__dlm as ind"
-
-  segment2:
-    displayName: "Sample Test Segment 2"
-    segmentOnApiName: "UnifiedIndividual__dlm"
-    segmentType: "Ui"
-    publishSchedule: "TwentyFour"
-    publishScheduleStartDateTime: "2026-01-01T00:00:00.000Z"
-    description: "Sample segment 2"
-    dataSpaceName: "default"
+    publishScheduleStartDateTime: "2026-03-28T00:00:00.000Z"
+    publishScheduleEndDate: "2027-03-28T00:00:00.000Z"
+    description: "Customers with annual revenue > $100k in Technology or Finance"
+    includeDbt:
+      models:
+        models:
+          - name: "high_value_segment"
+            sql: |
+              SELECT DISTINCT
+                individual.ssot__Id__c as individual_id
+              FROM UnifiedIndividual__dlm as individual
+              WHERE individual.AnnualRevenue__c > 100000
+                AND individual.Industry__c IN ('Technology', 'Finance')
+              ORDER BY individual.AnnualRevenue__c DESC
 
 # ─── Targets ──────────────────────────────────────────────────────────────────
 # POST /services/data/v66.0/ssot/activation-targets
@@ -100,10 +143,10 @@ targets:
 # POST /services/data/v66.0/ssot/activations
 activations:
   activation1:
-    name: "Activation_1"
+    name: "Send High Value Customers to S3"
+    segmentApiName: "high_value_customers"
     activationTargetName: "test_target_1"
-    segmentApiName: "sample_test_segment"
-    refreshType: "FULL"          # "FULL" or "INCREMENTAL" (not FULL_REFRESH)
+    refreshType: "FULL"
     dataSpaceName: "default"
     activationTargetSubjectConfig:
       developerName: "ssot__Individual__dlm"
@@ -122,7 +165,6 @@ activations:
     shouldExcludeUpdates: false
 
 # ─── Connectors ───────────────────────────────────────────────────────────────
-# POST /services/data/v66.0/ssot/connections
 connectors:
   SFTPConnector:
     name: SFTP_Connector_1

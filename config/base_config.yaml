@@ -1,5 +1,6 @@
 # config/base_config.yaml
 # Default configurations for all entity types.
+# Payloads sourced from d360-mcp-server payload-examples.json (v66.0)
 # Override specific fields in config/override_config.yaml
 
 defaults:
@@ -7,43 +8,56 @@ defaults:
   dataspace_name: "default"
 
 # ─── Datastreams ──────────────────────────────────────────────────────────────
-# Correct fields per d360-mcp-server (v66.0):
-#   dataAccessMode: "INGEST"
-#   connectorInfo.connectorType: e.g. "SalesforceDotCom" | "Snowflake" | "S3"
-#   refreshConfig.refreshMode: "UPSERT" | "TOTAL_REPLACE"
-#   refreshConfig.frequency.frequencyType: "BATCH" | "STREAMING"
+# POST /services/data/v66.0/ssot/data-streams
+# Profile streams: no eventDateColumn needed
+# Engagement streams: MUST set eventDateColumn to an immutable DateTime field (e.g. CreatedDate)
+#   DO NOT use LastModifiedDate — it changes on updates and breaks time-series partitioning
 datastreams:
   base:
-    dataSpaceName: "default"
     dataAccessMode: "INGEST"
     refreshConfig:
       frequency:
         frequencyType: "BATCH"
+        hours: []
+        refreshDayOfMonth: []
       refreshMode: "UPSERT"
+      hasHeaders: false
+      isAccelerationEnabled: false
+      shouldFetchImmediately: false
+      shouldTreatMissingFilesAsFailures: false
 
 # ─── DMOs ─────────────────────────────────────────────────────────────────────
-# Correct fields per d360-mcp-server (v66.0):
-#   objectType: "Custom" | "Standard"
-#   objectCategory: "Profile" | "Engagement" | "Other" | "Calculated"
+# POST /services/data/v66.0/ssot/data-model-objects
+# objectType: "Custom" | "Standard"
+# objectCategory: "Profile" | "Engagement" | "Other" | "Calculated"
 dmos:
   base:
-    dataSpaceName: "default"
     objectType: "Custom"
     objectCategory: "Profile"
 
+# ─── DMO Mappings ─────────────────────────────────────────────────────────────
+# POST /services/data/v66.0/ssot/data-model-object-mappings
+# Maps DLO fields → DMO fields so data flows from ingested streams into the model
+# IMPORTANT: DLO field names include __c suffix (e.g. Id__c not Id)
+# Use d360_dlo_get to get exact DLO field names after stream is created
+dmo_mappings:
+  base: {}
+
 # ─── Segments ─────────────────────────────────────────────────────────────────
-# Correct fields per d360-mcp-server (v66.0):
-#   segmentType: "Ui"  (case-sensitive — was "UI")
-#   publishSchedule: "TwentyFour" | "Weekly" | "None"
-#   segmentOnApiName: the DMO to segment on
+# POST /services/data/v66.0/ssot/segments
+# segmentType: "Ui" (case-sensitive)
+# publishSchedule: "TwentyFour" | "Weekly" | "None"
+# segmentCreationFlow: "Datakit" (required per payload-examples.json)
 segments:
   base:
     segmentType: "Ui"
+    segmentCreationFlow: "Datakit"
     segmentOnApiName: "UnifiedIndividual__dlm"
     publishSchedule: "TwentyFour"
     description: "Default segment"
 
 # ─── Targets ──────────────────────────────────────────────────────────────────
+# POST /services/data/v66.0/ssot/activation-targets
 targets:
   base:
     platformType: "AmazonS3"
@@ -55,15 +69,12 @@ targets:
     dataSpaceName: "default"
 
 # ─── Activations ──────────────────────────────────────────────────────────────
-# Correct fields per d360-mcp-server (v66.0):
-#   refreshType: "INCREMENTAL" | "FULL"  (not FULL_REFRESH)
+# POST /services/data/v66.0/ssot/activations
+# refreshType: "INCREMENTAL" | "FULL"
 activations:
   base:
     refreshType: "FULL"
     dataSpaceName: "default"
-    activationTargetName: "test_target_1"
-    name: "Activation_1"
-    segmentApiName: "test"
     activationTargetSubjectConfig:
       developerName: "ssot__Individual__dlm"
     attributesConfig:
@@ -79,10 +90,6 @@ activations:
           type: "MODEL"
     shouldExcludeDeletes: false
     shouldExcludeUpdates: false
-    staticDataConfig:
-      staticData:
-        - name: "Name 1"
-          value: "Value 1"
 
 # ─── Connectors ───────────────────────────────────────────────────────────────
 connectors:
