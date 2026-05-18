@@ -1,0 +1,4 @@
+# requirements.txt
+pyyaml==6.0.1
+requests==2.31.0
+click==8.1.7

@@ -1,0 +1,107 @@
+
+# config/base_config.yaml
+defaults:
+  api_version: "v61.0"
+  dataspace_name: "default"
+  
+targets:
+  base:
+    platformType: "AmazonS3"    
+    isCappingEnabled: false
+    description: "Default target description"
+    connector:
+      bucketName: "dev1-uswest2-cdp001-test-data"
+      folderName: "default/folder/"
+    dataSpaceName: "default"    # Added required field
+
+connectors:
+  base:
+    name: SFTP_Connector
+    connectorType: SFTP
+    label: Secure File Transfer (SFTP) 1
+    method: Egress
+    credentials:
+      - paramName: user
+        value: saithu-test-user
+      - paramName: sshClientCertPassword
+        value: abc
+      - paramName: password
+        value: abc
+      - paramName: sshClientCert
+        value: abc
+    parameters:
+      - paramName: remoteHost
+        value: s-65ebae61094a4729b.server.transfer.us-west-2.amazonaws.com
+      - paramName: parentDirectory
+        value: /sftp-test-output
+      - paramName: remotePort
+        value: "22"
+  base:
+    name: Azure_Connector
+    connectorType: AzureBlob
+    label: Azure_Connector
+    method: Egress
+    parameters:
+      - paramName: containerURL
+        value: "https://cdpq4datastorageaccount.blob.core.windows.net/activations"
+      - paramName: containerPath
+        value: "azure_q4_output/"
+    credentials:
+      - paramName: sasToken
+        value: "Sample"
+  base:
+    name: GCS_connector
+    connectorType: GCS
+    label: connectorGCS
+    method: Egress
+    credentials:
+      - paramName: accessKey
+        value: abc
+      - paramName: secretKey
+        value: abc
+    parameters:
+      - paramName: bucketName
+        value: cdp-q4-unstructured-data-av1
+      - paramName: parentDirectory
+        value: unstructured-data/
+
+activations:
+  base:  # Base template for all activations
+    refreshType: "FULL_REFRESH"
+    dataSpaceName: default
+    activationTargetName: "test_target_1"
+    name: "Activation_1"
+    segmentApiName: "test"
+    activationTargetSubjectConfig:
+      developerName: ssot__Individual__dlm
+    attributesConfig:
+      attributes:
+        - dataSourceType: "Text"
+          entityName: "ssot__Individual__dlm"
+          label: "Individual Id"
+          name: "ssot__Id__c"
+          queryPathConfig:
+            configs: []
+          referenceAttributeName: "Id"
+          source: "DIRECT"
+          type: "MODEL"
+    shouldExcludeDeletes: false
+    shouldExcludeUpdates: false
+    staticDataConfig:
+      staticData:
+        - name: "Name 1"
+          value: "Value 1"
+        - name: "Name 2"
+          value: "Value 2"
+
+
+
+
+
+segments:
+  base:  # Base template for segments
+    segmentType: "UI"
+    developerName: "default_segment_name"
+    description: "Default segment"
+    segmentOnApiName: "ssot__Individual__dlm"
+    segmentCreationFlow: "datakit"

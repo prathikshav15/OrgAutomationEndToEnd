@@ -1,0 +1,14 @@
+# config/creds.yaml
+org:
+  instance_url: ""  # e.g., https://orgfarm-xyz.test1.my.pc-rnd.salesforce.com
+  client_id: ""
+  client_secret: ""
+  username: ""
+  password: ""
+
+s3:
+  access_key: "ACCESS_KEY"
+  secret_key: "SECRET_KEY"
+
+azure:
+  connection_string: ""
