@@ -1,4 +1,5 @@
-# requirements.txt
 pyyaml==6.0.1
 requests==2.31.0
 click==8.1.7
+questionary==2.0.1
+rich==13.7.1

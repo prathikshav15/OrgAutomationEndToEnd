@@ -1,20 +1,50 @@
+# override_config_example.yaml
+# Copy this to override_config.yaml and fill in your values.
+# override_config.yaml is git-ignored — never commit real credentials.
+
+# ─── Datastreams ──────────────────────────────────────────────────────────────
+datastreams:
+  crm_contacts:
+    name: "CRM_Contacts_Stream"
+    type: "CRM"
+    dataSpaceName: "default"
+
+# ─── DMOs ─────────────────────────────────────────────────────────────────────
+dmos:
+  contact_dmo:
+    developerName: "Contact_Unified"
+    label: "Contact Unified"
+    category: "Profile"
+    dataSpaceName: "default"
+
+# ─── Segments ─────────────────────────────────────────────────────────────────
 segments:
   segment1:
     developerName: "sample_test_segment"
     description: "sample segment"
   segment2:
     developerName: "sample_test_segment_2"
-    description: "sample segment"
+    description: "sample segment 2"
 
+# ─── Targets ──────────────────────────────────────────────────────────────────
 targets:
   target1:
     name: "test_target_1"
     description: "test target"
     connector:
-      bucketName: "your-s3-bucket-name"
+      bucketName: "YOUR_S3_BUCKET_NAME"
       accessKey: "YOUR_AWS_ACCESS_KEY"
       secretKey: "YOUR_AWS_SECRET_KEY"
-  
+
+# ─── Activations ──────────────────────────────────────────────────────────────
+activations:
+  activation1:
+    name: "Activation_1"
+    activationTargetName: "test_target_1"
+    segmentApiName: "test"
+    refreshType: "FULL_REFRESH"
+
+# ─── Connectors ───────────────────────────────────────────────────────────────
 connectors:
   SFTPConnector:
     name: SFTP_Connector_1
@@ -23,55 +53,13 @@ connectors:
     method: Egress
     credentials:
       - paramName: user
-        value: saithu-test-user
-      - paramName: sshClientCertPassword
-        value: abc
+        value: YOUR_SFTP_USERNAME
       - paramName: password
-        value: abc
-      - paramName: sshClientCert
-        value:
-          -----BEGIN RSA PRIVATE KEY-----
-          SSH FULL KEY HERE
-          -----END RSA PRIVATE KEY-----
+        value: YOUR_SFTP_PASSWORD
     parameters:
       - paramName: remoteHost
-        value: s-65ebae61094a4729b.server.transfer.us-west-2.amazonaws.com
+        value: YOUR_SFTP_HOST
       - paramName: parentDirectory
-        value: /sftp-test-output
+        value: /sftp-output
       - paramName: remotePort
         value: "22"
-  AzureConnector:
-    name: Azure_Connector_1
-    connectorType: AzureBlob
-    label: Azure_Connector
-    method: Egress
-    parameters:
-      - paramName: containerURL
-        value: "https://cdpq4datastorageaccount.blob.core.windows.net/activations"
-      - paramName: containerPath
-        value: "azure_q4_output/"
-    credentials:
-      - paramName: sasToken
-        value: "SAS TOKEN HERE"
-  GCSConnector:
-    name: GCS_connector_1
-    connectorType: GCS
-    label: connectorGCS_1
-    method: Egress
-    credentials:
-      - paramName: accessKey
-        value: "YOUR_GCS_ACCESS_KEY"
-      - paramName: secretKey
-        value: "YOUR_GCS_SECRET_KEY"
-    parameters:
-      - paramName: bucketName
-        value: cdp-q4-unstructured-data-av1
-      - paramName: parentDirectory
-        value: unstructured-data/
-
-activations:
-  activation1:
-    name: "Activation_1"
-    activationTargetName: "test_target_1"
-    segmentApiName: "test"
-    refreshType: "FULL_REFRESH"
