@@ -1,5 +1,10 @@
 """
 test_datastream.py — standalone script to create an Opportunity datastream on cr-test.
+Uses same approach as d360-mcp-server d360_datastream_create_sfdc:
+  - datastreamType: "SFDC"
+  - No field list — API auto-discovers fields from CRM object schema
+  - Only connector info + DLO category/dataspace needed
+
 Run: python test_datastream.py
 """
 import json
@@ -40,40 +45,27 @@ if resp.status_code == 200:
 print("  ✓ Does not exist — will create.")
 
 # ── 3. Create the datastream ──────────────────────────────────────────────────
+# Mirrors d360_datastream_create_sfdc from d360-mcp-server:
+#   SalesforceCrmDataStreamTools.java — does NOT send field list.
+#   API auto-discovers fields from CRM object schema.
+#   datastreamType: "SFDC" is required for SalesforceDotCom connector.
 print("\nStep 3 — creating Opportunity_Stream datastream...")
 
 payload = {
-    "label": "Opportunity Data Stream",
-    "name": "Opportunity_Stream",
+    "name":           "Opportunity_Stream",
+    "label":          "Opportunity_Stream",
+    "datastreamType": "SFDC",
     "connectorInfo": {
         "connectorType": "SalesforceDotCom",
         "connectorDetails": {
-            "sourceObject": "Opportunity",
-            "name": "SalesforceDotCom_Home"
+            "name":         "SalesforceDotCom_Home",
+            "sourceObject": "Opportunity"
         }
     },
-    "dataAccessMode": "INGEST",
     "dataLakeObjectInfo": {
-        "category": "Profile",
-        "dataspaceInfo": [{"name": "default"}],
-        "dataLakeFieldInputRepresentations": [
-            {"name": "Id",          "dataType": "Text",     "label": "Opportunity ID",   "isPrimaryKey": True},
-            {"name": "Name",        "dataType": "Text",     "label": "Name",             "isPrimaryKey": False},
-            {"name": "Amount",      "dataType": "Number",   "label": "Amount",           "isPrimaryKey": False},
-            {"name": "StageName",   "dataType": "Text",     "label": "Stage",            "isPrimaryKey": False},
-            {"name": "CreatedDate", "dataType": "DateTime", "label": "Created Date",     "isPrimaryKey": False},
-            {"name": "CloseDate",   "dataType": "DateTime", "label": "Close Date",       "isPrimaryKey": False},
-            {"name": "AccountId",   "dataType": "Text",     "label": "Account ID",       "isPrimaryKey": False},
-            {"name": "OwnerId",     "dataType": "Text",     "label": "Owner ID",         "isPrimaryKey": False},
-        ]
-    },
-    "refreshConfig": {
-        "frequency": {
-            "hours": [],
-            "refreshDayOfMonth": [],
-            "frequencyType": "BATCH"
-        },
-        "refreshMode": "UPSERT"
+        "name":         "Opportunity_Stream",
+        "category":     "Profile",
+        "dataspaceInfo": [{"name": "default"}]
     }
 }
 
@@ -95,7 +87,7 @@ if resp.status_code in (200, 201):
     print(f"    recordId  : {result.get('recordId')}")
     print(f"    DLO name  : {dlo.get('name')}")
     print(f"    DLO id    : {dlo.get('id')}")
-    print(f"\n  ✓ DLO fields:")
+    print(f"\n  ✓ DLO fields (auto-discovered by API):")
     for f in dlo.get("dataLakeFieldInfoRepresentation", []):
         pk = " (PK)" if f.get("isPrimaryKey") else ""
         print(f"    {f['name']:40} {f['dataType']}{pk}")
