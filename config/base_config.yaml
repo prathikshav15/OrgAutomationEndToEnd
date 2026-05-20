@@ -9,14 +9,21 @@ defaults:
 
 # ─── Datastreams ──────────────────────────────────────────────────────────────
 # POST /services/data/v66.0/ssot/data-streams
-# Profile streams: no eventDateColumn needed
-# Engagement streams: MUST set eventDateColumn to an immutable DateTime field (e.g. CreatedDate)
+# IMPORTANT: Use Java model field names (not payload-examples.json names which differ):
+#   dataLakeObjectInfo.dataLakeFieldInputRepresentations  (NOT dataLakeFieldInfoRepresentation)
+#   dataLakeObjectInfo.dataspaceInfo: [{name: "default"}] (list, lowercase 's')
+#   dataLakeObjectInfo.eventDateTimeFieldName             (NOT eventDateColumn)
+# Profile streams: no eventDateTimeFieldName needed
+# Engagement streams: MUST set eventDateTimeFieldName to an immutable DateTime field (e.g. CreatedDate)
 #   DO NOT use LastModifiedDate — it changes on updates and breaks time-series partitioning
+# refreshConfig: omit hasHeaders/isAccelerationEnabled/shouldFetchImmediately for SalesforceDotCom
 datastreams:
   base:
     dataAccessMode: "INGEST"
     refreshConfig:
       frequency:
+        hours: []
+        refreshDayOfMonth: []
         frequencyType: "BATCH"
       refreshMode: "UPSERT"
 

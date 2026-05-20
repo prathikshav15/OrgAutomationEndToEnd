@@ -12,10 +12,12 @@
 #             DO NOT use LastModifiedDate — breaks time-series partitioning
 datastreams:
   # ── Example: CSV file upload (Engagement / transaction data) ──────────────
-  # Use UploadedFiles connector for CSV files.
-  # category: "Engagement" requires eventDateColumn pointing to an immutable DateTime field.
+  # Use UploadedFiles connector for CSV files (requires org to support it).
+  # IMPORTANT: Use the correct Java model field names (different from payload-examples.json):
+  #   dataLakeFieldInputRepresentations  (NOT dataLakeFieldInfoRepresentation)
+  #   dataspaceInfo: [{name: default}]   (list, lowercase s — NOT dataSpaceInfo)
+  #   eventDateTimeFieldName             (NOT eventDateColumn)
   # refreshMode: "TOTAL_REPLACE" replaces all rows on every re-upload.
-  # Field names map 1-to-1 from the CSV header row.
   transaction_stream:
     label: "Transaction Data Stream"
     name: "Transaction_Data"
@@ -25,8 +27,10 @@ datastreams:
         name: "UploadedFiles"
     dataLakeObjectInfo:
       category: "Engagement"
-      eventDateColumn: "date_time_stamp"   # immutable DateTime → used for time-series partitioning
-      dataLakeFieldInfoRepresentation:
+      eventDateTimeFieldName: "date_time_stamp"   # correct field name for Engagement streams
+      dataspaceInfo:                              # list, lowercase 's'
+        - name: "default"
+      dataLakeFieldInputRepresentations:          # correct POST field name
         - name: "unique_transaction_id"
           dataType: "Text"
           label: "Unique Transaction ID"
@@ -71,13 +75,12 @@ datastreams:
       fileType: "CSV"
       delimiter: ","
       fileName: "transactions.csv"
+      hasHeaders: true                           # belongs in advancedAttributes not refreshConfig
     refreshConfig:
-      hasHeaders: true
       refreshMode: "TOTAL_REPLACE"
-      isAccelerationEnabled: false
-      shouldFetchImmediately: false
-      shouldTreatMissingFilesAsFailures: false
       frequency:
+        hours: []
+        refreshDayOfMonth: []
         frequencyType: "BATCH"
 
   # ── Example: Salesforce CRM connector (Account object) ───────────────────
