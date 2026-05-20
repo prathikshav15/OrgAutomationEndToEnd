@@ -62,7 +62,7 @@ payload = {
             {"name": "Amount",      "dataType": "Number",   "label": "Amount",           "isPrimaryKey": False},
             {"name": "StageName",   "dataType": "Text",     "label": "Stage",            "isPrimaryKey": False},
             {"name": "CreatedDate", "dataType": "DateTime", "label": "Created Date",     "isPrimaryKey": False},
-            {"name": "CloseDate",   "dataType": "Date",     "label": "Close Date",       "isPrimaryKey": False},
+            {"name": "CloseDate",   "dataType": "DateTime", "label": "Close Date",       "isPrimaryKey": False},
             {"name": "AccountId",   "dataType": "Text",     "label": "Account ID",       "isPrimaryKey": False},
             {"name": "OwnerId",     "dataType": "Text",     "label": "Owner ID",         "isPrimaryKey": False},
         ]
